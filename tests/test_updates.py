@@ -21,20 +21,70 @@ def versioned_source(template_source, tmp_path):
     return source
 
 
-def test_guidance_adoption_preserves_preowned_host_settings_and_root_authority(template_source, tmp_path):
+def test_guidance_adoption_and_update_preserve_existing_authority_routing_docs_and_settings(versioned_source, tmp_path):
+    source = versioned_source
     project = tmp_path / "consumer"
-    (project / ".codex").mkdir(parents=True)
-    (project / ".claude").mkdir()
-    custom = {".codex/config.toml": 'model = "existing-model"\n',
-              ".claude/settings.json": '{"permissions":{"deny":["Bash(rm *)"]}}\n',
-              "AGENTS.md": "Existing project safety authority.\n"}
+    custom = {
+        ".codex/config.toml": b'model = "existing-model"\r\n',
+        ".claude/settings.json": b'{"permissions":{"deny":["Bash(rm *)"]}}\r\n',
+        "AGENTS.md": b"Existing project safety authority.\r\n",
+        "CLAUDE.md": b"Custom Claude authority and imports.\r\n",
+        ".agents/README.md": b"Product routing: existing packages stay in their real locations.\r\n",
+        "docs/README.md": b"Product documentation catalog; keep custom navigation.\r\n",
+        "docs/structure.md": b"Product-owned structure; not the selected scaffold layout.\r\n",
+        "docs/specs/README.md": b"Approved specifications catalog.\r\n",
+        "docs/specs/control.md": b"Actual project control contract.\r\n",
+        "docs/adr/README.md": b"Accepted architecture decisions catalog.\r\n",
+        "docs/adr/0001-ownership.md": b"Actual project ownership decision.\r\n",
+        ".codex/agents/safety.toml": b'description = "Existing safety role"\r\n',
+        ".agents/templates/change-spec.md": b"Customized legacy form.\r\n",
+    }
     for name, body in custom.items():
-        (project / name).write_text(body)
-    run_copy(str(template_source), project, data={"project_name": "consumer", "adoption": "guidance"},
+        path = project / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(body)
+    run_copy(str(source), project, vcs_ref="v1.0.0", data={"project_name": "consumer", "adoption": "guidance"},
              defaults=True, quiet=True, overwrite=True, unsafe=False, skip_tasks=True)
-    for name, body in custom.items():
-        assert (project / name).read_text() == body
+    assert {name: (project / name).read_bytes() for name in custom} == custom
     assert not (project / "src").exists() and not (project / "package.json").exists()
+    git(project, "init", "--template=", "-b", "main")
+    git(project, "add", ".")
+    git(project, "commit", "-m", "Disposable existing guidance consumer")
+    for relative in (".agents/README.md.jinja", "docs/README.md.jinja", "docs/structure.md.jinja",
+                     "docs/specs/README.md", "docs/adr/README.md"):
+        path = source / "template" / relative
+        path.write_text(path.read_text() + "\nTemplate revision must not replace project-owned entrypoints.\n")
+    git(source, "add", ".")
+    git(source, "commit", "-m", "Disposable guidance revision")
+    git(source, "tag", "v2.0.0")
+    run_update(project, vcs_ref="v2.0.0", defaults=True, quiet=True,
+               overwrite=True, unsafe=True, skip_tasks=True)
+    assert {name: (project / name).read_bytes() for name in custom} == custom
+    assert not list(project.rglob("*.rej"))
+
+
+def test_project_copy_and_update_preserve_existing_claude_customization(versioned_source, tmp_path):
+    source = versioned_source
+    project = tmp_path / "consumer"
+    project.mkdir()
+    claude = project / "CLAUDE.md"
+    original = b"Existing project-specific Claude rules.\r\n@local-policy.md\r\n"
+    claude.write_bytes(original)
+    run_copy(str(source), project, vcs_ref="v1.0.0", data={"project_name": "consumer"},
+             defaults=True, quiet=True, overwrite=True, unsafe=False, skip_tasks=True)
+    assert claude.read_bytes() == original
+    git(project, "init", "--template=", "-b", "main")
+    git(project, "add", ".")
+    git(project, "commit", "-m", "Disposable customized Claude consumer")
+    bridge = source / "template/CLAUDE.md.jinja"
+    bridge.write_text("@AGENTS.md\n\nNew template text must not replace customization.\n")
+    git(source, "add", ".")
+    git(source, "commit", "-m", "Disposable compatibility revision")
+    git(source, "tag", "v2.0.0")
+    run_update(project, vcs_ref="v2.0.0", defaults=True, quiet=True,
+               overwrite=True, unsafe=True, skip_tasks=True)
+    assert claude.read_bytes() == original
+    assert not list(project.rglob("*.rej"))
 
 
 def test_git_managed_ref_and_profile_update_preserves_settings_policy_and_product(versioned_source, tmp_path):

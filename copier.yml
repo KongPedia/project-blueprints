@@ -82,7 +82,9 @@ profile:
   when: "{{ layout == 'single' }}"
   validator: >-
     {% set native = registry.profiles | selectattr('id', 'equalto', profile) | first %}
-    {% if project_name in native.get('reserved_names', []) %}
+    {% if native.technology == 'python' and project_name | replace('-', '_') in registry.python_stdlib.module_names %}
+    This module name conflicts with the Python standard library.
+    {% elif project_name in native.get('reserved_names', []) %}
     This name conflicts with a reserved native target or direct dependency of the selected profile.
     {% endif %}
 
@@ -159,6 +161,8 @@ components:
     Component kind must be apps or packages.
     {% elif item.profile not in registry.profiles | map(attribute='id') | list %}
     Unknown component profile.
+    {% elif (registry.profiles | selectattr('id', 'equalto', item.profile) | first).technology == 'python' and item.name | replace('-', '_') in registry.python_stdlib.module_names %}
+    Component module name conflicts with the Python standard library.
     {% elif item.name in (registry.profiles | selectattr('id', 'equalto', item.profile) | first).get('reserved_names', []) %}
     Component name conflicts with a reserved native target or direct dependency of the selected profile.
     {% else %}{% set ns.names = ns.names + [item.name] %}{% endif %}
@@ -220,8 +224,15 @@ selected_plugins:
 
 _skip_if_exists:
   - /AGENTS.md
+  - /CLAUDE.md
   - /DESIGN.md
   - /.github/pull_request_template.md
+  # Adoption adds missing guidance without replacing product-owned routing or docs entrypoints.
+  - "{% if adoption == 'guidance' %}/.agents/README.md{% endif %}"
+  - "{% if adoption == 'guidance' %}/docs/README.md{% endif %}"
+  - "{% if adoption == 'guidance' %}/docs/structure.md{% endif %}"
+  - "{% if adoption == 'guidance' %}/docs/specs/README.md{% endif %}"
+  - "{% if adoption == 'guidance' %}/docs/adr/README.md{% endif %}"
   - "{% if adoption == 'guidance' %}/.codex/config.toml{% endif %}"
   - "{% if adoption == 'guidance' %}/.claude/settings.json{% endif %}"
 

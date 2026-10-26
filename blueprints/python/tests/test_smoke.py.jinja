@@ -1,7 +1,23 @@
-"""Scaffold-only import smoke, not a product behavior test."""
+"""Scaffold ownership and module-entrypoint smoke, not product behavior coverage."""
 
 from importlib import import_module
+from pathlib import Path
+import subprocess
+import sys
 
 
-def test_scaffold_package_is_importable() -> None:
-    import_module("{{ component.module }}")
+def test_scaffold_package_and_entrypoint_are_owned_by_this_checkout() -> None:
+    source = Path(__file__).resolve().parents[1] / "src" / "{{ component.module }}"
+    package = import_module("{{ component.module }}")
+    assert Path(package.__file__).resolve() == source / "__init__.py"
+    entrypoint = import_module("{{ component.module }}.__main__")
+    assert Path(entrypoint.__file__).resolve() == source / "__main__.py"
+
+
+def test_scaffold_module_entrypoint_exits_without_output() -> None:
+    result = subprocess.run(
+        [sys.executable, "-m", "{{ component.module }}"],
+        cwd=Path(__file__).resolve().parents[1],
+        capture_output=True, text=True, timeout=15,
+    )
+    assert (result.returncode, result.stdout, result.stderr) == (0, "", "")

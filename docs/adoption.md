@@ -13,7 +13,7 @@ The private Git source needs normal Git access. A local checkout works with the 
 
 ```bash
 uvx copier copy --trust \
-  ~/Desktop/workspace/konglabs/project-blueprints ./my-project
+  /path/to/project-blueprints ./my-project
 ```
 
 Native prompts select the project name, single/monorepo, one of eight profiles or seven standard compositions, API
@@ -33,7 +33,7 @@ chain derived from the selected profiles/capabilities. Codex, an accessible regi
 `agent_skills_repository` are prerequisites. From this workspace, register the reviewed local index once per host:
 
 ```bash
-codex plugin marketplace add ~/Desktop/workspace/konglabs/agent-skills
+codex plugin marketplace add /path/to/agent-skills
 ```
 
 If copying reports `plugin ... was not found in marketplace konglabs-agent-skills`, verify the source and perform that
@@ -116,6 +116,16 @@ components:
 Pass it with Copier's `--data-file` option. Standard combinations—including Python API + Next—use native preset questions
 instead. This is a composition contract, not implemented business behavior or a second answer-template library.
 
+## REST API profile parity
+
+REST contracts are not a FastAPI-only capability. `python-fastapi` selects `common`, `python`, `api-contracts` and
+`fastapi`; `python-litestar` selects the same common REST/API layers with `litestar` instead of `fastapi`.
+The `api_framework` question switches this boundary for standard Python API monorepo compositions as well.
+The shared API-design procedure owns resources, methods/status, schemas, pagination, errors and compatibility; the
+selected framework skill owns native routing, DI, lifecycle, exception mapping and HTTP test clients.
+The shared skill's Python REST example is specifically illustrative FastAPI code, not a requirement for Litestar.
+Do not install both framework bundles merely to obtain REST guidance.
+
 ## Existing repository
 
 1. Inspect Git state, Copier answers, authority/safety, manifests, local policy and both hosts' existing settings.
@@ -138,3 +148,48 @@ adaptation recovery or product-code conversion is promised.
 For enrolled projects, follow [Copier updates and preservation](updates.md#copier-updates-and-preservation). Shared plugin
 releases refresh through the host instead. Credentials, caches, personal trust and live hardware defaults are never
 template inputs.
+
+## Executable guidance-only enrollment
+
+For an existing repository, first use a **new comparison directory** with a reviewed accessible template revision:
+
+```bash
+uvx copier copy --skip-tasks --defaults \
+  --vcs-ref '<reviewed-template-commit>' \
+  -d project_name=example-api -d adoption=guidance \
+  -d layout=single -d profile=python-litestar \
+  /path/to/project-blueprints /path/to/new-guidance-comparison
+```
+
+`adoption` is a hidden advanced input: explicitly pass `adoption=guidance`. Select the actual profile/capabilities or
+provide custom component data with `--data-file`. Comparison `apps/` and `packages/` owners do not migrate an existing
+repository's arbitrary layout; preserve its true package paths, manifests, commands, locks and safety policy.
+
+Next run the same native command **only against a disposable tracked-file copy** of the intended repository. Use
+`--overwrite` there if needed to exercise native preservation and inspect every addition/conflict; never reuse an
+active `.git` file pointing at the original repository. Exclude secrets, host caches/trust, credentials and ignored
+environments. Compare every pre-existing file's bytes, symlink target and submodule boundary before and after.
+
+Guidance mode preserves existing root `AGENTS.md`, `DESIGN.md`, `CLAUDE.md`, PR template, host configs,
+`.agents/README.md` and product docs navigation/structure/spec/ADR entrypoints. Existing roles/skill resources and
+legacy forms are not automatically retired. Preservation is not integration: manually reconcile relevant pointers
+and activation without deleting unique local rules, licenses or adaptations. Keep optional hooks off initially.
+
+After approval of that migration diff, an authorized review branch can use the same `adoption=guidance` copy command
+with the real repository as destination and explicitly reviewed merge/overwrite choices. This is initial native
+enrollment, not `copier update`: let Copier write and retain its actual answers/source revision. Hand-copying the
+comparison output or manufacturing `_commit` does not establish lineage. Keep the old recorded revision accessible.
+The uncommitted maintainer checkout is not an immutable release or durable update source.
+
+Review task/migration definitions before trust decisions. `--skip-tasks` suppresses regular tasks, **not migration
+tasks in arbitrary templates**; it is not a general execution sandbox. This template's copy-only plugin task is
+conditioned off for guidance adoption and updates. Upstream [Copier configuration](https://copier.readthedocs.io/en/stable/configuring/)
+and [update prerequisites](https://copier.readthedocs.io/en/stable/updating/) explain these separate boundaries.
+
+Rollback uses the reviewed product Git diff/revert while preserving pre-existing untracked files; do not blanket
+reset/clean or delete unrelated host caches. Apply each separately owned Git repository/submodule independently;
+changing its parent's gitlink is a later explicit Git decision, never a rendering side effect.
+
+Host source registration, selected installation, trust and fresh-session invocation remain separate from template
+enrollment. Template updates do not refresh host-managed skill versions. Existing exact local skill pointers need
+semantic comparison and explicit rerouting before any reviewed retirement of generic copies.
