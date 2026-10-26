@@ -1,0 +1,24 @@
+# Project structure
+
+| Path | Owner |
+| --- | --- |
+{% if layout == 'monorepo' %}
+{% for component in packages -%}
+| `{{ component.path }}/` | {{ component.profile }}: native manifest, source, tests, local environment and lock |
+{% endfor %}
+{% else %}
+| `src/` | {{ profile }} product source; the root owns its native manifest, tests, environment and lock |
+{% endif %}
+| `scripts/`, `bin/` | Repository maintenance and thin command entrypoints, not product policy |
+| `tests/` | Native tests for a single package; actual cross-package tests for a monorepo |
+| `docs/specs/`, `docs/adr/` | Maintained project contracts and decision rationale |
+| `.agents/` | Project routing/setup; no reusable skill bodies or generic blank forms |
+| `.codex/config.toml`, `.claude/settings.json` | Team plugin activation; not installation or trust proof |
+
+{% if layout == 'monorepo' %}
+`apps/` contains deployable applications/services; `packages/` contains reusable code when selected. Each package keeps
+its language-native inner `src/`. No empty outer `src/` or unused group is created. Co-location does not implement
+interoperability or one shared toolchain, lock, deployment or workspace; adopt native workspaces for actual dependencies.
+{% endif %}
+This describes fresh generation, not a code/folder migration on update. Actual manifests and package READMEs prevail.
+Use `.gitkeep` only for necessary otherwise-empty locations; an existing README already keeps a folder in Git.

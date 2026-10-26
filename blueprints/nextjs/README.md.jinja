@@ -1,0 +1,45 @@
+{% set root_prefix = '' if component.path == '.' else '../' * (component.path.split('/') | length) %}
+# {{ component.name }}
+
+A minimal Next.js App Router + React + TypeScript full-stack scaffold. `/` is a static starting screen;
+`GET /api/health` returns `{ "status": "ok" }`, not external-dependency or business-readiness status.
+Authentication, databases, Server Actions, deployment policies and business features are not implemented.
+Choose React/Vite for a browser-only SPA. Next.js does not require a separate NestJS app.
+
+## Code and responsibilities
+
+- `src/app/layout.tsx`: root document and shared page composition.
+- `src/app/page.tsx`: static Server Component; introduce Client Components only at interactive boundaries.
+- `src/app/api/health/route.ts`: HTTP Route Handler; keep server authority separate from client display state.
+- `tests/health.test.mjs`: Node checks for handler status, headers and JSON, without a browser or Next server.
+
+Keep secrets and server-only code out of the client module graph. Specify and test input, authorization, error and cache
+contracts as features are added. Introduce `src/features` or shared modules for real cohesion/reuse, not empty layers.
+There are no remote fonts, external APIs, storage or client state in the current scaffold.
+
+## Environment and checks
+
+Use Node 22.22.3 or later and npm 11.11.0. Each component owns its manifest and lock.
+
+```sh
+npm install
+npm run check
+```
+
+Keep the generated `package-lock.json` in Git and use `npm ci` afterward. `check` runs `next typegen`, strict typechecking,
+handler tests and a Next production build. Test `.ts` imports use supported Node native type stripping; this does not
+replace Nest decorator compilation. Next generates `next-env.d.ts` and `.next/`.
+`npm run dev` and, after building, `npm start` are separate loopback-only server commands on `127.0.0.1:3000`.
+These checks do not establish browser/accessibility, product E2E or deployment behavior.
+
+Official metadata pins checked on 2026-10-26: Next 16.4.3, React/react-dom 19.3.1, React types 19.3.0,
+TypeScript 7.0.2 and Node 22 types 22.20.5. Review peers, Node, rendering compatibility and the lock when upgrading.
+See [Next installation/App Router](https://nextjs.org/docs/app/getting-started/installation) and
+[Next typegen](https://nextjs.org/docs/app/api-reference/cli/next#next-typegen-options).
+Installed-version documentation is also available in `node_modules/next/dist/docs`.
+
+## Development guidance
+
+Follow [AGENTS.md]({{ root_prefix }}AGENTS.md) and the [project agent routing]({{ root_prefix }}.agents/README.md).
+Use the installed package-specific procedures and shared Common references for the actual task. Keep project contracts
+and decisions local; no copied methodology manual or speculative layer hierarchy is required.

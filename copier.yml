@@ -1,0 +1,302 @@
+_min_copier_version: 9.19.1
+_subdirectory: template
+_preserve_symlinks: false
+_answers_file: .copier-answers.yml
+
+project_name:
+  type: str
+  help: Repository/package name (lowercase kebab-case)
+  default: "{{ _folder_name }}"
+  validator: >-
+    {% if agent_delivery is defined or agent_delivery_baseline is defined or rust_async is defined %}
+    Pre-publication local/dual-delivery answers require separate reviewed re-enrollment; do not update them in place.
+    {% elif not (project_name | regex_search('^[a-z][a-z0-9]*(?:-[a-z0-9]+)*\\Z')) or project_name | length > 63 %}
+    Use a lowercase letter followed by letters, digits or single hyphens (max 63).
+    {% elif project_name | replace('-', '_') in ['False','None','True','and','as','assert','async','await','break','class','continue','def','del','elif','else','except','finally','for','from','global','if','import','in','is','lambda','nonlocal','not','or','pass','raise','return','try','while','with','yield'] %}
+    Choose a name that is not a Python keyword.
+    {% endif %}
+
+adoption:
+  type: str
+  help: New project with code seeds, or guidance-only adoption in an existing repository?
+  choices: [project, guidance]
+  ask: false
+  default: project
+
+agent_skills_repository:
+  type: str
+  help: Optional project GitHub owner/repository; empty uses the marketplace already registered on the host
+  default: ""
+  ask: false
+  validator: >-
+    {% if agent_skills_repository and not (agent_skills_repository | regex_search('^[A-Za-z0-9](?:[A-Za-z0-9-]{0,37}[A-Za-z0-9])?/[A-Za-z0-9][A-Za-z0-9._-]{0,99}\\Z')) %}
+    Use a GitHub owner/repository only, without a URL, credentials, whitespace or shell syntax.
+    {% endif %}
+
+agent_skills_ref:
+  type: str
+  help: Reviewed marketplace Git tag, commit or branch (stable is a moving reviewed channel; pin a commit for reproducibility)
+  default: stable
+  ask: false
+  validator: >-
+    {% if not (agent_skills_ref | regex_search('^[A-Za-z0-9][A-Za-z0-9._/-]{0,127}\\Z')) or '..' in agent_skills_ref or '//' in agent_skills_ref or '/.' in agent_skills_ref or agent_skills_ref.endswith(('.', '/', '.lock')) or '.lock/' in agent_skills_ref %}
+    Use a safe Git ref token without whitespace, shell syntax, option prefixes or invalid ref components.
+    {% endif %}
+
+enable_agent_hooks:
+  type: bool
+  help: Enable optional session-guidance plugin (still requires separate host/project hook trust)
+  default: false
+
+layout:
+  type: str
+  help: One native package, or any combination of named native packages?
+  choices:
+    프로젝트 하나: single
+    여러 앱·공용코드를 한 레포에서 관리: monorepo
+  default: single
+
+registry_documents:
+  type: yaml
+  when: false
+  # Copier accepts --data for hidden questions too. Refuse overrides of derived metadata/paths.
+  validator: &computed_only This value is internal; set only documented project/profile/component inputs.
+  default: !include blueprints/profiles.json
+
+registry:
+  type: json
+  when: false
+  validator: *computed_only
+  default: "{{ registry_documents[0] | to_json }}"
+
+profile:
+  type: str
+  help: Native package profile (common engineering guidance is included in all profiles)
+  choices: >-
+    {% set ns = namespace(items={}) %}
+    {% for entry in registry.profiles %}
+    {% set _ = ns.items.update({entry.technology ~ ' · ' ~ entry.label: entry.id}) %}
+    {% endfor %}
+    {{ ns.items | to_json }}
+  default: python
+  when: "{{ layout == 'single' }}"
+  validator: >-
+    {% set native = registry.profiles | selectattr('id', 'equalto', profile) | first %}
+    {% if project_name in native.get('reserved_names', []) %}
+    This name conflicts with a reserved native target or direct dependency of the selected profile.
+    {% endif %}
+
+monorepo_preset:
+  type: str
+  help: Monorepo composition (custom is the advanced YAML path)
+  choices: >-
+    {% set ns = namespace(items={}) %}
+    {% for entry in registry.monorepo_presets %}
+    {% set _ = ns.items.update({entry.label: entry.id}) %}
+    {% endfor %}
+    {% set _ = ns.items.update({'Custom components (advanced YAML)': 'custom'}) %}
+    {{ ns.items | to_json }}
+  default: "{{ 'custom' if _copier_answers.get('components') else 'python-web' }}"
+  when: "{{ layout == 'monorepo' }}"
+  ask: "{{ not _copier_answers.get('components') }}"
+  validator: >-
+    {% if _copier_answers.get('components') and monorepo_preset != 'custom' %}
+    {% set preset = registry.monorepo_presets | selectattr('id', 'equalto', monorepo_preset) | first %}
+    {% set ns = namespace(items=[]) %}
+    {% for item in preset.components %}
+    {% set ns.items = ns.items + [dict(item, profile=(api_framework | default('python-fastapi')) if item.profile == 'python-http' else item.profile)] %}
+    {% endfor %}
+    {% if components | default([]) != ns.items %}
+    A preset cannot migrate recorded components on update. Use custom components and review the product migration separately.
+    {% endif %}
+    {% endif %}
+
+api_framework:
+  type: str
+  help: Python API framework
+  choices:
+    FastAPI: python-fastapi
+    Litestar: python-litestar
+  default: python-fastapi
+  when: "{{ layout == 'monorepo' and monorepo_preset in ['python-backend', 'python-web', 'python-next', 'robotics-web', 'headless', 'firmware'] }}"
+  ask: "{{ not _copier_answers.get('components') }}"
+  validator: >-
+    {% if _copier_answers.get('components') %}
+    {% set actual = components | default([]) | selectattr('name', 'equalto', 'api') | list %}
+    {% if not actual or actual[0].profile != api_framework %}
+    The API framework does not match recorded components. Use custom components and review the product migration separately.
+    {% endif %}
+    {% endif %}
+
+components:
+  type: yaml
+  help: 'Packages: list of {name: lower-kebab, kind: apps|packages, profile: profile-id}'
+  multiline: true
+  default: >-
+    {% set preset = registry.monorepo_presets | selectattr('id', 'equalto', monorepo_preset) | first | default(registry.monorepo_presets[0]) %}
+    {% set ns = namespace(items=[]) %}
+    {% for item in preset.components %}
+    {% set ns.items = ns.items + [dict(item, profile=api_framework if item.profile == 'python-http' else item.profile)] %}
+    {% endfor %}
+    {{ ns.items | to_json }}
+  when: "{{ layout == 'monorepo' }}"
+  ask: "{{ monorepo_preset == 'custom' }}"
+  validator: >-
+    {% if components is not sequence or components is string or components is mapping or not components or components | length > 50 %}
+    Supply a nonempty list of at most 50 component mappings.
+    {% else %}
+    {% set ns = namespace(names=[]) %}
+    {% for item in components %}
+    {% if item is not mapping or item.keys() | list | sort != ['kind', 'name', 'profile'] %}
+    Each component needs exactly name, kind and profile.
+    {% elif item.name is not string or not (item.name | regex_search('^[a-z][a-z0-9]*(?:-[a-z0-9]+)*\\Z')) or item.name | length > 63 %}
+    Component names must be safe lowercase kebab-case (max 63).
+    {% elif item.name | replace('-', '_') in ['and','as','assert','async','await','break','class','continue','def','del','elif','else','except','finally','for','from','global','if','import','in','is','lambda','nonlocal','not','or','pass','raise','return','try','while','with','yield'] %}
+    Component names cannot be Python keywords.
+    {% elif item.name in ns.names %}
+    Component names must be unique across apps and packages.
+    {% elif item.kind not in ['apps', 'packages'] %}
+    Component kind must be apps or packages.
+    {% elif item.profile not in registry.profiles | map(attribute='id') | list %}
+    Unknown component profile.
+    {% elif item.name in (registry.profiles | selectattr('id', 'equalto', item.profile) | first).get('reserved_names', []) %}
+    Component name conflicts with a reserved native target or direct dependency of the selected profile.
+    {% else %}{% set ns.names = ns.names + [item.name] %}{% endif %}
+    {% endfor %}
+    {% endif %}
+
+packages:
+  type: json
+  when: false
+  validator: *computed_only
+  default: >-
+    {% set ns = namespace(items=[]) %}
+    {% if layout == 'single' %}
+    {% set ns.items = [dict(name=project_name, profile=profile, module=project_name | replace('-', '_'), kind='packages', path='.')] %}
+    {% else %}
+    {% for item in components %}
+    {% set ns.items = ns.items + [dict(name=item.name, profile=item.profile, kind=item.kind, module=item.name | replace('-', '_'), path=pathjoin(item.kind, item.name))] %}
+    {% endfor %}
+    {% endif %}
+    {{ ns.items | to_json }}
+
+selected_profiles:
+  type: json
+  when: false
+  validator: *computed_only
+  default: "{{ packages | map(attribute='profile') | unique | list | to_json }}"
+
+robotics:
+  type: bool
+  help: Include framework-neutral robotics/device-I/O plugin guidance (no device connection or SDK installation)
+  default: false
+
+known_plugins:
+  type: json
+  when: false
+  validator: *computed_only
+  default: >-
+    {% set ns = namespace(ids=registry.common_plugins + [registry.hook_plugin]) %}
+    {% for entry in registry.profiles %}{% set ns.ids = ns.ids + entry.plugins %}{% endfor %}
+    {% for capability in registry.capabilities %}{% set ns.ids = ns.ids + capability.plugins %}{% endfor %}
+    {{ ns.ids | unique | sort | list | to_json }}
+
+selected_plugins:
+  type: json
+  when: false
+  validator: *computed_only
+  default: >-
+    {% set ns = namespace(ids=registry.common_plugins) %}
+    {% for entry in registry.profiles if entry.id in selected_profiles %}
+    {% set ns.ids = ns.ids + entry.plugins %}
+    {% endfor %}
+    {% if robotics %}
+    {% for capability in registry.capabilities if capability.id == 'robotics' %}
+    {% set ns.ids = ns.ids + capability.plugins %}
+    {% endfor %}
+    {% endif %}
+    {% if enable_agent_hooks %}{% set ns.ids = ns.ids + [registry.hook_plugin] %}{% endif %}
+    {{ ns.ids | unique | sort | list | to_json }}
+
+_skip_if_exists:
+  - /AGENTS.md
+  - /DESIGN.md
+  - /.github/pull_request_template.md
+  - "{% if adoption == 'guidance' %}/.codex/config.toml{% endif %}"
+  - "{% if adoption == 'guidance' %}/.claude/settings.json{% endif %}"
+
+# Application seeds are never reintroduced or changed by a guidance update.
+# Add a component by generating into a temporary directory and reviewing its diff.
+_exclude:
+  # Preserve customized forms from older templates; shared assets now belong to plugins.
+  - /.agents/templates
+  - .DS_Store
+  - __pycache__
+  - '*.pyc'
+  - "{% if 'react-ui' not in selected_plugins %}/DESIGN.md{% endif %}"
+  - "{% if layout == 'monorepo' %}/src{% endif %}"
+  - |-
+    {% if adoption == 'guidance' or _copier_operation == 'update' %}
+    /src
+    /apps
+    /packages
+    /tests
+    /include
+    /lib
+    /test
+    /scripts
+    /bin
+    /README.md
+    /.gitignore
+    /pyproject.toml
+    /package.json
+    /tsconfig.json
+    /Cargo.toml
+    /Cargo.lock
+    /rust-toolchain.toml
+    /platformio.ini
+    /board-env.example.ini
+    /index.html
+    /vite.config.ts
+    {% endif %}
+
+# Native trusted post-copy provisioning; no skill files or installer wrapper enter the product.
+_tasks:
+  - command:
+      - "{{ _copier_python }}"
+      - -c
+      - |
+        import json, subprocess, sys
+        plugins, marketplace, repository = sys.argv[1:]
+        if repository:
+            raise SystemExit("Automatic installation requires the reviewed host-registered marketplace. "
+                             "Leave agent_skills_repository empty, or use --skip-tasks for explicit-source review; "
+                             "Git URL/ref overrides do not verify Codex's cached snapshot identity.")
+        try:
+            for name in json.loads(plugins):
+                subprocess.run(["codex", "plugin", "add", f"{name}@{marketplace}"], check=True)
+        except FileNotFoundError:
+            raise SystemExit("Codex CLI was not found. Install it first, or use --skip-tasks for render-only generation.") from None
+        except subprocess.CalledProcessError:
+            raise SystemExit(f"Codex plugin installation failed. Check access to {marketplace}. "
+                             "Register the reviewed source once: codex plugin marketplace add <path-or-git-url>. "
+                             "Use --skip-tasks for render-only generation. Earlier host installs were not rolled back.") from None
+      - "{{ selected_plugins | to_json }}"
+      - "{{ registry.marketplace }}"
+      - "{{ agent_skills_repository }}"
+    when: "{{ _copier_operation == 'copy' and adoption == 'project' }}"
+
+_message_after_copy: |
+  Created {{ adoption }} files for {{ project_name }}.
+  Read AGENTS.md and .agents/README.md. No product dependencies, hooks, services or hardware were started.
+  {% if adoption == 'project' and not _copier_conf.skip_tasks %}
+  Selected Codex plugins were installed through the native host CLI; project/hook trust remains separate.
+  {% else %}
+  Plugin installation did not run. Follow .agents/plugin-setup.md for the selected host commands.
+  {% endif %}
+  Existing AGENTS.md is preserved: integrate the .agents/README.md pointer if needed.
+  Plugin selection uses the host-registered local/private source unless an explicit project source was provided.
+  Read .agents/plugin-setup.md. Existing adoption configs are preserved; manual merge may be needed.
+_message_after_update: |
+  Inspect the diff and any Copier conflicts before accepting this update.
+  Product source, native manifests and root README were excluded; new profiles are not scaffolded on update.

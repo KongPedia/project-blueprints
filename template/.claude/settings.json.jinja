@@ -1,0 +1,9 @@
+{% set ns = namespace(flags={}) -%}
+{% for name in known_plugins -%}
+{% set _ = ns.flags.update({name ~ '@' ~ registry.marketplace: name in selected_plugins}) -%}
+{% endfor -%}
+{% set settings = dict(enabledPlugins=ns.flags) -%}
+{% if agent_skills_repository -%}
+{% set _ = settings.update(extraKnownMarketplaces={registry.marketplace: dict(source=dict(source='github', repo=agent_skills_repository, ref=agent_skills_ref), autoUpdate=false)}) -%}
+{% endif -%}
+{{ settings | to_nice_json(indent=2) }}

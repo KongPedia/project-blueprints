@@ -1,0 +1,40 @@
+{% set root_prefix = '' if component.path == '.' else '../' * (component.path.split('/') | length) %}
+# {{ component.name }}
+
+A C++17 PlatformIO firmware starter. **The default environment is host-only `native`; no physical board is selected.**
+The host `main()` exits without I/O; Arduino `setup()`/`loop()` hooks are empty.
+There are no peripherals, pins, networks, RTOS, drivers or business features.
+
+## Code and responsibilities
+
+- `src/main.cpp`: host entrypoint, or empty lifecycle hooks when `ARDUINO` is defined.
+- `include/`, `lib/`: actual shared headers and reusable libraries when needed.
+- `test/`: future offline regression tests; no tests are implemented yet.
+- `platformio.ini`: `default_envs = native` and host `-std=c++17`.
+- `board-env.example.ini`: a **comment-only example** for an explicitly reviewed board/platform/framework/toolchain.
+
+Define external inputs, fixed capacities and error results first. Use RAII/explicit lifetimes for resource ownership and
+cleanup; do not invent interfaces, tasks or heap wrappers without a real driver. Reviewed hardware profiles own pin,
+polarity, boot-safe state and electrical constraints; the host scaffold does not define them.
+No secrets, device addresses or upload settings are included.
+
+## Environment and checks
+
+Build with an installed PlatformIO and host compiler, **naming the environment explicitly**. First use may install
+PlatformIO's native platform/tools; confirm installation authority and version/environment ownership first.
+The current `platform = native` is not version-pinned.
+
+```sh
+pio run -e native
+```
+
+This is a host build, not a unit test or target-firmware check. Define `pio test` only after adding actual tests.
+When selecting a board/platform/SDK/toolchain, record version/lock policies and software gates for every variant.
+Physical-board builds, uploads, serial/bus/network access, deployment and actuation require separately scoped authority.
+Native success does not prove target ABI, memory/timing budgets, electrical safety or physical behavior.
+
+## Development guidance
+
+Follow [AGENTS.md]({{ root_prefix }}AGENTS.md) and the [project agent routing]({{ root_prefix }}.agents/README.md).
+Use the installed package-specific procedures and shared Common references for the actual task. Keep project contracts
+and decisions local; no copied methodology manual or speculative layer hierarchy is required.

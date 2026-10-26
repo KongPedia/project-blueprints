@@ -1,0 +1,20 @@
+[build-system]
+requires = ["hatchling==1.32.4"]
+build-backend = "hatchling.build"
+
+[project]
+name = "{{ component.name }}"
+version = "0.1.0"
+description = "Python general application scaffold; no framework selected"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = []
+
+[dependency-groups]
+dev = ["pytest==9.1.1"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/{{ component.module }}"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

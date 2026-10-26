@@ -1,0 +1,14 @@
+# {{ project_name }} agent contract
+
+- Start with [.agents/README.md](.agents/README.md), the owning package README and any deeper AGENTS.
+  Select task-relevant native plugin procedures from that owner, not every installed skill.
+- Actual package manifests, locks, public contracts and project requirements take precedence over generic examples.
+  Single-package code uses native `src/`; monorepos group native packages under root `apps/` and `packages/`.
+- Respect the latest task scope. Inspect callers before edits; preserve unrelated changes. Delegate only independent
+  owned work, keep shared-contract changes coordinated and use built-in host agents by default.
+- Complete authorized reversible work without repeated permission. Commits, publishing, deployment and physical
+  operations require corresponding authority. Plugins/examples do not grant it; never copy host credentials or caches.
+- Protect changed behavior with meaningful RED/GREEN, preservation with characterization and prose with static checks.
+  Run the owning package's declared gates and report omitted checks honestly.
+- Record changes, observed evidence, compatibility risks and rollback. Configuration does not prove plugin loading,
+  hook trust, fresh-session discovery, model adherence, product acceptance, deployment or hardware success.

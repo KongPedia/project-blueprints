@@ -1,0 +1,20 @@
+# {{ project_name }}
+
+A monorepo of selected native packages. Coexistence does not establish interoperability, a shared lock or one deployment.
+
+| Component | Profile | Owner path |
+| --- | --- | --- |
+{% for component in packages -%}
+| {{ component.name }} | {{ component.profile }} | [{{ component.path }}]({{ component.path }}/README.md) |
+{% endfor %}
+
+- [AGENTS.md](AGENTS.md) / [development guidance and skills](.agents/README.md)
+- [Structure and environment ownership](docs/structure.md), [project contracts](docs/specs/README.md), [decisions](docs/adr/README.md)
+- [Plugin setup and updates](.agents/plugin-setup.md), [licensing](THIRD-PARTY-NOTICES.md)
+
+Run each package README's setup/check commands from that package directory. Initially packages own independent native
+environments/locks; no root Cargo/npm/uv workspace or build orchestrator is forced. Adopt a native workspace after
+confirming real dependency/deployment boundaries. Schema generation, codegen and FFI are not implemented.
+
+Give real shared schemas one authority after defining consumers and generation/check ownership. Do not create blank
+contracts SDKs or claim interoperability from colocated code.

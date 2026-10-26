@@ -1,0 +1,7 @@
+"""Scaffold-only import smoke, not a product behavior test."""
+
+from importlib import import_module
+
+
+def test_scaffold_package_is_importable() -> None:
+    import_module("{{ component.module }}")

@@ -1,0 +1,47 @@
+{% set root_prefix = '' if component.path == '.' else '../' * (component.path.split('/') | length) %}
+# {{ component.name }}
+
+A general Python package with importable code and an execution entrypoint. There is no framework, HTTP server or
+business behavior yet. Use it for actual automation, worker, service, robotics or reusable-code requirements.
+
+## Code and responsibilities
+
+- `src/{{ component.module }}/__init__.py`: importable scaffold; importing does not start connections/tasks or alter the environment.
+- `src/{{ component.module }}/__main__.py`: calls `main()` only through `python -m {{ component.module }}`.
+  The current entrypoint exits without external effects; importing the package/entrypoint does not execute it.
+- `tests/test_smoke.py`: installed-package import smoke, not product regression coverage.
+- `pyproject.toml`: distribution name, supported Python range, build backend and development dependencies.
+
+Split responsibilities when real inputs, use cases or I/O appear. Select an HTTP framework profile when HTTP is needed;
+do not pre-create `domain/`, `application/`, `adapters/` or abstract base classes.
+Do not hide expected failures behind successful defaults. Composition or the creating object owns mutable state and
+external resources, including partial-startup cleanup. Read secrets at configuration boundaries; avoid import-time
+configuration reads and I/O.
+
+## Environment and checks
+
+This component owns `pyproject.toml`, `.venv/` and its generated `uv.lock`. If adopting a parent Python workspace, define
+shared environment/lock ownership too. Separate installation/lock creation from verification.
+
+```sh
+uv sync --dev
+uv run --locked pytest
+uv build
+```
+
+After installation, run the entrypoint with:
+
+```sh
+uv run --locked python -m {{ component.module }}
+```
+
+It currently exits without I/O and starts no server. The manifest supports Python 3.10 or later. Pins checked against
+PyPI metadata on 2026-10-26 are [hatchling 1.32.4](https://pypi.org/pypi/hatchling/1.32.4/json) and
+[pytest 9.1.1](https://pypi.org/pypi/pytest/9.1.1/json). Review supported versions and locks when changing them.
+Generated tests cover packaging/import smoke only; add behavior tests with the actual implementation.
+
+## Development guidance
+
+Follow [AGENTS.md]({{ root_prefix }}AGENTS.md) and the [project agent routing]({{ root_prefix }}.agents/README.md).
+Use the installed package-specific procedures and shared Common references for the actual task. Keep project contracts
+and decisions local; no copied methodology manual or speculative layer hierarchy is required.

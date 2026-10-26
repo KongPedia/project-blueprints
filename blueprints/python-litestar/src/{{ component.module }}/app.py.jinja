@@ -1,0 +1,12 @@
+"""HTTP entrypoint. Add feature routers when real application contracts exist."""
+
+from litestar import Litestar, get
+
+
+@get("/health", sync_to_thread=False)
+def health() -> dict[str, str]:
+    return {"status": "ok"}
+
+
+def create_app() -> Litestar:
+    return Litestar(route_handlers=[health])

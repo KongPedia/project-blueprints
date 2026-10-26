@@ -1,0 +1,44 @@
+{% set root_prefix = '' if component.path == '.' else '../' * (component.path.split('/') | length) %}
+# {{ component.name }}
+
+A minimal React + TypeScript browser scaffold. `src/app/App.tsx` displays the project name and scaffold status.
+There are no business features, API integrations or global state. This is a Vite client, not Next.js/RSC/server actions.
+
+## Code and responsibilities
+
+- `index.html`, `src/app/main.tsx`: document and React mount entrypoints.
+- `src/app/App.tsx`: the static screen; `app/` owns composition, not a framework router.
+- `src/features/`: real features; `src/shared/components/` and `src/shared/lib/`: demonstrated reusable code.
+- `tests/`: guidance for future cross-feature checks; no product unit/E2E tests exist yet.
+
+Define component props, user behavior and incoming API contracts. Keep local UI state near its owner; do not duplicate
+server-side business authority. Effects must own cancellation and stale-result guards for requests, subscriptions and
+timers. Do not disguise loading, empty or error states as success. The current scaffold has no external I/O or resources.
+
+## Environment and checks
+
+Use Node 22.12 or later and npm 11.11.0. Separate installation/lock creation from checks and builds.
+
+```sh
+npm install
+npm run check
+```
+
+Keep the generated `package-lock.json`; use `npm ci` for later reproducible installs. This component owns its npm
+environment and lock. `check` runs strict typechecking and a Vite production build, not browser, accessibility or product
+tests. `npm run dev` starts a separate development server; do not run it merely to verify prose.
+Client-exposed environment values are not secret storage.
+
+These pins were checked against npm registry metadata on 2026-10-26. Review peers, Node compatibility and the lock together
+when changing versions:
+
+- [React 19.3.1](https://registry.npmjs.org/react/19.3.1), [react-dom 19.3.1](https://registry.npmjs.org/react-dom/19.3.1)
+- [Vite 8.3.5](https://registry.npmjs.org/vite/8.3.5), [TypeScript 7.0.2](https://registry.npmjs.org/typescript/7.0.2)
+- [@types/react 19.3.0](https://registry.npmjs.org/@types%2Freact/19.3.0),
+  [@types/react-dom 19.3.0](https://registry.npmjs.org/@types%2Freact-dom/19.3.0)
+
+## Development guidance
+
+Follow [AGENTS.md]({{ root_prefix }}AGENTS.md) and the [project agent routing]({{ root_prefix }}.agents/README.md).
+Use the installed package-specific procedures and shared Common references for the actual task. Keep project contracts
+and decisions local; no copied methodology manual or speculative layer hierarchy is required.

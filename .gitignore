@@ -1,0 +1,44 @@
+# Host credentials and machine-local configuration
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+secrets.*
+auth.json
+.DS_Store
+
+# Local agent/session state is not portable project guidance
+.omx/
+.codex/auth.json
+.codex/sessions/
+.codex/history.jsonl
+.code-review-graph/
+
+# Native package/tooling build caches
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+node_modules/
+target/
+dist/
+build/
+coverage/
+.coverage
+*.egg-info/
+
+# Editors
+.idea/
+*.swp
+
+# PlatformIO generated host/target artifacts
+.pio/
+
+# Next.js generated output
+.next/
+out/
+next-env.d.ts
+*.tsbuildinfo

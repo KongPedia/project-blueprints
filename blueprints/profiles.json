@@ -1,0 +1,264 @@
+{
+  "profiles": [
+    {
+      "id": "python",
+      "path": "blueprints/python",
+      "technology": "python",
+      "label": "Python 기본 프로젝트",
+      "description": "로보틱스·자동화·일반 서비스·재사용 코드용 import 가능한 패키지와 실행 진입점. HTTP framework는 설치하지 않습니다.",
+      "reserved_names": [
+        "pytest"
+      ],
+      "plugins": [
+        "python"
+      ]
+    },
+    {
+      "id": "python-fastapi",
+      "path": "blueprints/python-fastapi",
+      "technology": "python",
+      "label": "API 백엔드 · FastAPI",
+      "description": "FastAPI 앱·HTTP 경계 테스트·Uvicorn 실행 골격.",
+      "reserved_names": [
+        "fastapi",
+        "uvicorn",
+        "pytest",
+        "httpx2"
+      ],
+      "plugins": [
+        "python",
+        "api-contracts",
+        "fastapi"
+      ]
+    },
+    {
+      "id": "python-litestar",
+      "path": "blueprints/python-litestar",
+      "technology": "python",
+      "label": "API 백엔드 · Litestar",
+      "description": "Litestar 앱·HTTP 경계 테스트·Uvicorn 실행 골격.",
+      "reserved_names": [
+        "litestar",
+        "uvicorn",
+        "pytest",
+        "httpx"
+      ],
+      "plugins": [
+        "python",
+        "api-contracts",
+        "litestar"
+      ]
+    },
+    {
+      "id": "react-typescript",
+      "path": "blueprints/react-typescript",
+      "technology": "typescript",
+      "label": "프런트엔드 · React + Vite",
+      "description": "브라우저 React UI. 별도 API 서버나 Next.js는 포함하지 않습니다.",
+      "plugins": [
+        "typescript",
+        "react-ui"
+      ]
+    },
+    {
+      "id": "nestjs",
+      "path": "blueprints/nestjs",
+      "technology": "typescript",
+      "label": "API 백엔드 · NestJS",
+      "description": "NestJS 모듈·컨트롤러·HTTP 경계 테스트. React는 포함하지 않습니다.",
+      "plugins": [
+        "typescript",
+        "api-contracts",
+        "nestjs"
+      ]
+    },
+    {
+      "id": "nextjs",
+      "path": "blueprints/nextjs",
+      "technology": "typescript",
+      "label": "풀스택 웹 · Next.js",
+      "description": "App Router의 React UI와 서버 Route Handler를 하나의 앱으로 생성합니다.",
+      "plugins": [
+        "typescript",
+        "react-ui",
+        "api-contracts",
+        "nextjs"
+      ]
+    },
+    {
+      "id": "rust",
+      "path": "blueprints/rust",
+      "technology": "rust",
+      "label": "Rust 기본 프로젝트",
+      "description": "하나의 Cargo package에 재사용 코드(lib.rs)와 실행 진입점(main.rs)을 함께 둡니다. Tokio·CLI framework·FFI는 추가하지 않습니다.",
+      "reserved_names": [
+        "build",
+        "deps",
+        "examples",
+        "incremental",
+        "test"
+      ],
+      "plugins": [
+        "rust"
+      ]
+    },
+    {
+      "id": "cpp-firmware",
+      "path": "blueprints/cpp-firmware",
+      "technology": "cpp",
+      "label": "C++ 펌웨어 · native 검사 골격",
+      "description": "PlatformIO native 전용. 보드·핀·업로드·하드웨어 접속은 선택하지 않습니다.",
+      "plugins": [
+        "cpp-firmware"
+      ]
+    }
+  ],
+  "capabilities": [
+    {
+      "id": "robotics",
+      "label": "로봇·장치 I/O 개발 지침",
+      "plugins": [
+        "robotics"
+      ]
+    }
+  ],
+  "monorepo_presets": [
+    {
+      "id": "python-backend",
+      "label": "Python API + worker + shared Python",
+      "components": [
+        {
+          "name": "api",
+          "kind": "apps",
+          "profile": "python-http"
+        },
+        {
+          "name": "worker",
+          "kind": "apps",
+          "profile": "python"
+        },
+        {
+          "name": "domain",
+          "kind": "packages",
+          "profile": "python"
+        }
+      ]
+    },
+    {
+      "id": "python-web",
+      "label": "Python API + React frontend",
+      "components": [
+        {
+          "name": "api",
+          "kind": "apps",
+          "profile": "python-http"
+        },
+        {
+          "name": "web",
+          "kind": "apps",
+          "profile": "react-typescript"
+        }
+      ]
+    },
+    {
+      "id": "python-next",
+      "label": "Python API + Next.js full-stack",
+      "components": [
+        {
+          "name": "api",
+          "kind": "apps",
+          "profile": "python-http"
+        },
+        {
+          "name": "web",
+          "kind": "apps",
+          "profile": "nextjs"
+        }
+      ]
+    },
+    {
+      "id": "nest-react",
+      "label": "NestJS API + React frontend",
+      "components": [
+        {
+          "name": "api",
+          "kind": "apps",
+          "profile": "nestjs"
+        },
+        {
+          "name": "web",
+          "kind": "apps",
+          "profile": "react-typescript"
+        }
+      ]
+    },
+    {
+      "id": "robotics-web",
+      "label": "Python robotics + API + React + shared Python",
+      "components": [
+        {
+          "name": "robot-agent",
+          "kind": "apps",
+          "profile": "python"
+        },
+        {
+          "name": "api",
+          "kind": "apps",
+          "profile": "python-http"
+        },
+        {
+          "name": "web",
+          "kind": "apps",
+          "profile": "react-typescript"
+        },
+        {
+          "name": "robot-domain",
+          "kind": "packages",
+          "profile": "python"
+        }
+      ]
+    },
+    {
+      "id": "headless",
+      "label": "Python API + Rust + shared Python",
+      "components": [
+        {
+          "name": "api",
+          "kind": "apps",
+          "profile": "python-http"
+        },
+        {
+          "name": "engine",
+          "kind": "packages",
+          "profile": "rust"
+        },
+        {
+          "name": "contracts",
+          "kind": "packages",
+          "profile": "python"
+        }
+      ]
+    },
+    {
+      "id": "firmware",
+      "label": "Python API + C++ firmware",
+      "components": [
+        {
+          "name": "api",
+          "kind": "apps",
+          "profile": "python-http"
+        },
+        {
+          "name": "device",
+          "kind": "apps",
+          "profile": "cpp-firmware"
+        }
+      ]
+    }
+  ],
+  "common_plugins": [
+    "common"
+  ],
+  "hook_plugin": "session-guidance",
+  "marketplace": "konglabs-agent-skills"
+}

@@ -1,0 +1,42 @@
+# Project agent routing
+
+Read root [AGENTS.md](../AGENTS.md), the changed package's README, native manifests/locks and deeper AGENTS first.
+Select procedures for the actual task, not every installed skill. Shared methods/resources live in `agent-skills`;
+this directory owns only project routing and setup. It is not a skill/plugin installation directory.
+
+- Common's SDD/TDD, selective DDD, source-first and design references apply when that task needs them; no copied manual
+  or mandatory layer/interface is required. Keep actual project contracts in `docs/specs` and decision rationale in `docs/adr`.
+- Use behavioral regression for changed behavior, characterization for preservation and static checks for prose.
+  Run actual owning-package gates. Examples never add dependencies or override local policy, authority or safety.
+- Use built-in host agents by default. Claude-native packaged agents and explicit Codex custom-agent exports differ;
+  Codex plugins do not load custom-agent TOMLs in the verified clients.
+
+## Common engineering
+
+{% for name in registry.common_plugins -%}
+- `{{ name }}@{{ registry.marketplace }}`: task-triggered design, domain modeling, shared contracts, implementation,
+  testing, debugging, review and verification. This is not an always-load checklist.
+{% endfor %}
+Optional task/change/README forms belong to Common's `writing-plans`, `spec-driven-development` and `docs-sync`
+assets. ADRs reuse `domain-modeling`'s existing format. Prefer existing project conventions; save filled contracts and
+decisions in project docs, not copies of the shared form library.
+
+## Package ownership
+{% for component in packages %}
+### `{{ component.path }}` — `{{ component.profile }}`
+
+{% set native = registry.profiles | selectattr('id', 'equalto', component.profile) | first -%}
+{% for name in native.plugins -%}
+- `{{ name }}@{{ registry.marketplace }}`
+{% endfor %}
+{% endfor %}
+{% if robotics %}
+## Device-I/O tasks
+
+`robotics@{{ registry.marketplace }}` applies only to robot/device I/O, units, frames, clocks, command/safety authority,
+freshness and lifecycle. Its shared reference covers the Python/API/UI example. It grants no SDK or physical access.
+{% endif %}
+
+A monorepo enables a union, not technical per-folder isolation. UI/API/Rust-async procedures remain task-conditional.
+If this recorded selection differs from actual code, inspect the difference before editing; selection is not migration.
+[Plugin setup](plugin-setup.md) separates source registration, installation, project/hook trust and fresh discovery.

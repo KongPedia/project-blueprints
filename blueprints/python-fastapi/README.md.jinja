@@ -1,0 +1,34 @@
+{% set root_prefix = '' if component.path == '.' else '../' * (component.path.split('/') | length) -%}
+# {{ component.name }} — FastAPI backend
+
+A src-layout Python package with an app factory, `GET /health` and HTTP boundary tests.
+Authentication, databases, business use cases and deployment are not implemented. Add layers or interfaces only when
+real responsibilities require them.
+
+```bash
+# From this package directory
+uv sync --group dev
+uv run pytest
+uv build
+# Start a development server only when needed; loopback only
+uv run uvicorn {{ component.module }}.app:create_app --factory --host 127.0.0.1 --port 8000
+```
+
+Keep the generated `uv.lock` with this package. Python 3.11 or later is required; choose the actual minor version for
+its toolchain and CI. Exact dependency pins were checked against PyPI on 2026-10-26:
+[FastAPI](https://pypi.org/project/fastapi/0.162.0/), [Uvicorn](https://pypi.org/project/uvicorn/0.54.0/).
+The current [Starlette TestClient guidance](https://starlette.dev/testclient/) uses `httpx2==2.16.0`, which requires
+Python 3.11 or later.
+
+## Ownership
+
+- `src/{{ component.module }}/app.py`: app composition and the HTTP boundary; extract feature routers when needed.
+- `tests/test_health.py`: software-only response/error smoke tests, not product acceptance, load or operations evidence.
+- `pyproject.toml` / `uv.lock`: this package's dependencies and independent environment.
+- Resources: define ownership and cleanup through lifespan/dependencies when actual resources are introduced.
+
+## Development guidance
+
+Follow [AGENTS.md]({{ root_prefix }}AGENTS.md) and the [project agent routing]({{ root_prefix }}.agents/README.md).
+Use the installed package-specific procedures and shared Common references for the actual task. Keep project contracts
+and decisions local; no copied methodology manual or speculative layer hierarchy is required.

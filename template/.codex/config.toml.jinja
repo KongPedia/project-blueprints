@@ -1,0 +1,11 @@
+# Project activation only. Source registration and trust are host-owned unless explicitly selected below.
+{% if agent_skills_repository %}
+[marketplaces.{{ registry.marketplace }}]
+source_type = "git"
+source = "https://github.com/{{ agent_skills_repository }}.git"
+ref = "{{ agent_skills_ref }}"
+{% endif %}
+{% for name in known_plugins %}
+[plugins."{{ name }}@{{ registry.marketplace }}"]
+enabled = {{ 'true' if name in selected_plugins else 'false' }}
+{% endfor %}

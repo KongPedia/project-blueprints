@@ -1,0 +1,46 @@
+{% set root_prefix = '' if component.path == '.' else '../' * (component.path.split('/') | length) %}
+# {{ component.name }}
+
+A general Rust package with both a library and executable entrypoint. Single-project and monorepo `apps`/`packages`
+placements use the same sources; placement does not select another runtime or crate structure.
+There are no product features, external dependencies, Tokio, FFI or CLI parsers yet.
+
+## Code and responsibilities
+
+- `src/lib.rs`: public boundary for reusable types/functions; currently crate documentation only, with no product API.
+- `src/main.rs`: executable entrypoint; `main()` currently exits without I/O. Add argument/configuration composition and
+  error/exit-code translation here; place behavior needed by other callers in the library.
+- `tests/`: future public-boundary integration tests; there are currently **zero product tests**.
+- `Cargo.toml`: package, edition and dependencies; Cargo conventions discover both targets.
+
+Expose only the required `pub`/`pub(crate)` surface. Return meaningful `Result` values for expected failures rather than
+panicking. Make mutable-state and resource lifetimes explicit through ownership/borrowing. Do not pre-create traits,
+repositories, domain layers or tasks without an actual substitution/test boundary.
+Additional executables belong in the package's `src/bin/`; repository-root `bin/` is not a Cargo target directory.
+
+## Environment and checks
+
+Use a compiler supporting Rust 2021, with rustfmt and Clippy. Development toolchain pins and supported MSRV are separate
+contracts; choosing an edition does not validate a minimum compiler. This package owns its Cargo environment and lock.
+Review and retain `Cargo.lock` because the package includes an executable. If adopting a parent Cargo workspace, define
+membership and shared lock/toolchain ownership together. Python/JavaScript checks do not replace Cargo checks.
+
+The scaffold has no external dependencies, so native checks/builds can run offline. Revisit installation, lock updates
+and environment-specific commands when adding dependencies.
+
+```sh
+cargo fmt --check
+cargo clippy --offline --all-targets -- -D warnings
+cargo test --offline
+cargo build --offline --lib --bin {{ component.name }}
+cargo run --offline --quiet --bin {{ component.name }}
+```
+
+The current harness has zero product tests and the executable does nothing. Successful commands establish native
+scaffold compilation/loading, not business behavior, external compatibility, deployment or physical operation.
+
+## Development guidance
+
+Follow [AGENTS.md]({{ root_prefix }}AGENTS.md) and the [project agent routing]({{ root_prefix }}.agents/README.md).
+Use the installed package-specific procedures and shared Common references for the actual task. Keep project contracts
+and decisions local; no copied methodology manual or speculative layer hierarchy is required.

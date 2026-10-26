@@ -1,0 +1,44 @@
+{% set root_prefix = '' if component.path == '.' else '../' * (component.path.split('/') | length) %}
+# {{ component.name }}
+
+A minimal NestJS + TypeScript HTTP backend. `GET /health` returns `{ "status": "ok" }`.
+This only checks the scaffold route, not external dependencies or business readiness. Authentication, databases, CORS,
+deployment policies and business features are not implemented.
+
+## Code and responsibilities
+
+- `src/main.ts`: composition, listening on `127.0.0.1:3000` and shutdown hooks. Review exposure and ports for real operations.
+- `src/app.module.ts`: controller registration; add feature modules when responsibilities have separate reasons to change.
+- `src/app.controller.ts`: HTTP response boundary; extract concrete policy/I/O collaborators when needed.
+- `tests/health.test.mjs`: starts and closes a real Nest app on an ephemeral loopback port, without an external server.
+
+Do not pre-create a service, interface or repository for every handler. Specify inputs, errors, status codes and resource
+ownership, then test actual behavior. Design authorization and DTO validation when those boundaries exist.
+This package uses ESM/NodeNext and emitted `.js` paths in relative source imports. `tsc` owns the build to retain Nest
+decorator metadata.
+
+## Environment and checks
+
+Use Node 22.22.3 or later and npm 11.11.0. Each component owns its manifest and lock.
+
+```sh
+npm install
+npm run check
+```
+
+Installation creates `package-lock.json`; keep it in Git and use `npm ci` afterward. `check` runs strict typechecking,
+TypeScript compilation and the loopback HTTP test, not product, external-integration or deployment acceptance.
+`npm start` is a separate loopback-only execution command. Review authentication, input limits and shutdown before
+public deployment.
+
+Official metadata/starter pins checked on 2026-10-26: Nest 12.2.0, reflect-metadata 0.2.2, RxJS 7.8.2,
+TypeScript 7.0.2 and Node 22 types 22.20.5. Review peer, Node, emit compatibility and the lock together when upgrading.
+See [Nest first steps](https://docs.nestjs.com/first-steps) and the
+[pinned ESM starter](https://github.com/nestjs/typescript-starter/tree/0b6d71261ba30bb6976949a8653e4a86479a68c1).
+CLI, schematics and observability vendor SDKs are not required by this minimal scaffold.
+
+## Development guidance
+
+Follow [AGENTS.md]({{ root_prefix }}AGENTS.md) and the [project agent routing]({{ root_prefix }}.agents/README.md).
+Use the installed package-specific procedures and shared Common references for the actual task. Keep project contracts
+and decisions local; no copied methodology manual or speculative layer hierarchy is required.

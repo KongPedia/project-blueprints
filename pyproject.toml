@@ -1,0 +1,16 @@
+[project]
+name = "project-blueprints"
+version = "0.1.0"
+description = "Native Konglabs Copier scaffolds and project-scoped plugin selection"
+requires-python = ">=3.11"
+dependencies = ["copier==9.19.1"]
+
+[dependency-groups]
+dev = ["pytest>=8.4,<9"]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"

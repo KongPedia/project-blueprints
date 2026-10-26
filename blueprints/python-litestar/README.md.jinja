@@ -1,0 +1,37 @@
+{% set root_prefix = '' if component.path == '.' else '../' * (component.path.split('/') | length) -%}
+# {{ component.name }} — Python API backend · Litestar
+
+An application factory, `GET /health`, HTTP boundary tests and an installable src-layout package.
+Authentication, persistence, business operations and deployment are intentionally not implemented.
+
+```bash
+# From this package directory
+uv sync --group dev
+uv run pytest -W error
+uv build
+# Start a loopback development server only when needed
+uv run python -m {{ component.module }}
+```
+
+Record the resulting `uv.lock` alongside this package. The starter requires Python 3.11 or newer; select a supported
+minor version in the actual toolchain/CI. This starter floor is not Litestar's minimum Python requirement.
+Exact versions were checked against PyPI on 2026-10-26:
+[Litestar 2.25.0](https://pypi.org/project/litestar/2.25.0/),
+[Uvicorn 0.54.0](https://pypi.org/project/uvicorn/0.54.0/),
+[HTTPX 0.28.1](https://pypi.org/project/httpx/0.28.1/).
+The native Litestar test client uses HTTPX; FastAPI's separate test-client dependency choice does not apply here.
+
+## Ownership
+
+- `src/{{ component.module }}/app.py`: application composition and HTTP boundary. Add a router/controller when routes
+  need shared configuration or independent ownership, not to fill an empty architecture.
+- `src/{{ component.module }}/__main__.py`: optional guarded development entrypoint. Importing it starts no server.
+- `tests/test_health.py`: software-only status/payload and unknown-route smoke, not product acceptance or readiness.
+- `pyproject.toml`/`uv.lock`: this package's environment. No ORM, queue or external DI container is selected.
+- Real clients/tasks acquire and release resources through explicit dependency/lifespan owners when needed.
+
+## Development guidance
+
+Follow [AGENTS.md]({{ root_prefix }}AGENTS.md) and the [project agent routing]({{ root_prefix }}.agents/README.md).
+Use the installed package-specific procedures and shared Common references for the actual task. Keep project contracts
+and decisions local; no copied methodology manual or speculative layer hierarchy is required.
