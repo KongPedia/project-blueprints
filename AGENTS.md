@@ -3,9 +3,10 @@
 ## Scope and ownership
 
 This repository owns native Copier scaffolds and project-specific plugin integration, not reusable skill bodies.
-`agent-skills` owns the canonical procedures, resources, licenses, hooks and generic role sources. Neighboring
-BattleBang/ESP/Unitree repositories are read-only reference inputs. Private releases require explicit authorization;
-public distribution additionally requires a license and proprietary-scope review.
+`agent-skills` owns the canonical procedures, resources, licenses, hooks and generic role sources. Consuming
+repositories are read-only reference inputs unless their adoption is explicitly requested. Private releases require
+explicit authorization; public distribution additionally requires a license and proprietary-scope review. Keep shared
+maintainer docs generic; consumer-specific migration reports belong to their owner or external task evidence.
 
 - Read this contract and the owning source/readme. Use relevant organization plugin procedures; when
   maintaining an unpublished local source, inspect the exact applicable canonical procedure in the sibling

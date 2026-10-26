@@ -25,6 +25,15 @@ stale same-name Git cache; review actual source/bytes rather than treating confi
 does not replace shared release refresh or install during guidance adoption/updates. Manual commands remain recovery
 and Claude alternatives.
 
+## Shared skill releases do not require template recopy
+
+If an enabled provider bundle advances from `0.1.0` to `0.1.1` without changing identity or project selection, refresh
+that marketplace/installed payload on each host using the provider release procedure; do not run Copier just to
+receive skill text. A host following `main` or a maintained moving channel differs from one pinned to an immutable tag.
+A template/source setting does not retarget a previously cached same-name registration. Verify actual installed
+versions and reload sessions. Existing copied/customized Markdown and exact local pointers are not replaced by refresh:
+complete their separately reviewed [initial adoption](adoption.md#executable-guidance-only-enrollment) first.
+
 ## Copier updates and preservation
 
 An answers file or `_commit` value alone is not durable enrollment: the recorded old template commit must actually

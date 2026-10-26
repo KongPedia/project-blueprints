@@ -9,7 +9,7 @@ business behavior yet. Use it for actual automation, worker, service, robotics o
 - `src/{{ component.module }}/__init__.py`: importable scaffold; importing does not start connections/tasks or alter the environment.
 - `src/{{ component.module }}/__main__.py`: calls `main()` only through `python -m {{ component.module }}`.
   The current entrypoint exits without external effects; importing the package/entrypoint does not execute it.
-- `tests/test_smoke.py`: installed-package import smoke, not product regression coverage.
+- `tests/test_smoke.py`: owned-source import and module-entrypoint smoke, not product regression coverage.
 - `pyproject.toml`: distribution name, supported Python range, build backend and development dependencies.
 
 Split responsibilities when real inputs, use cases or I/O appear. Select an HTTP framework profile when HTTP is needed;
@@ -38,7 +38,7 @@ uv run --locked python -m {{ component.module }}
 It currently exits without I/O and starts no server. The manifest supports Python 3.10 or later. Pins checked against
 PyPI metadata on 2026-10-26 are [hatchling 1.32.4](https://pypi.org/pypi/hatchling/1.32.4/json) and
 [pytest 9.1.1](https://pypi.org/pypi/pytest/9.1.1/json). Review supported versions and locks when changing them.
-Generated tests cover packaging/import smoke only; add behavior tests with the actual implementation.
+Generated tests cover scaffold ownership and module-entrypoint smoke only; add behavior tests with the actual implementation.
 
 ## Development guidance
 

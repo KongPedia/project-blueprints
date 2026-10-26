@@ -152,3 +152,25 @@ def test_generic_artifact_forms_are_plugin_resources_not_consumer_copies(rendere
     assert not (project / ".agents/templates").exists(), "Common assets belong in the installed plugin"
     assert not (project / "src/README.md").exists(), "Native packages already own their source layout"
     assert_local_links(project)
+
+
+@pytest.mark.parametrize("api_framework", ["python-fastapi", "python-litestar"])
+@pytest.mark.parametrize("preset", ["python-backend", "python-web", "python-next", "robotics-web", "headless", "firmware"])
+def test_api_compositions_keep_shared_rest_contracts_and_only_selected_framework(
+    template_source, tmp_path, api_framework, preset,
+):
+    """Switching the API adapter must retain REST guidance without adding the other framework."""
+    project = tmp_path / "consumer"
+    render(template_source, project, layout="monorepo", monorepo_preset=preset, api_framework=api_framework)
+    codex, claude = configs(project)
+    framework = "litestar" if api_framework == "python-litestar" else "fastapi"
+    other = "fastapi" if framework == "litestar" else "litestar"
+    selected = {key.split("@", 1)[0] for key, value in codex["plugins"].items() if value["enabled"]}
+    assert {"common", "python", "api-contracts", framework} <= selected
+    assert other not in selected
+    assert claude["enabledPlugins"][f"api-contracts@konglabs-agent-skills"] is True
+    assert claude["enabledPlugins"][f"{framework}@konglabs-agent-skills"] is True
+    assert claude["enabledPlugins"][f"{other}@konglabs-agent-skills"] is False
+    dependencies = tomllib.loads((project / "apps/api/pyproject.toml").read_text())["project"]["dependencies"]
+    assert any(dependency.startswith(framework + "==") for dependency in dependencies)
+    assert not any(dependency.startswith(other + "==") for dependency in dependencies)

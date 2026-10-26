@@ -10,8 +10,8 @@ Product-owned guidance is authored once under `template/`; native package README
 | Local/private plugin indexes and host lifecycle | Shared host setup (`agent-skills/docs/hosts.md`) |
 | Plugin releases versus project configuration updates | [Updates](updates.md) |
 | Official/upstream references and applicability | [Sources](sources.md) |
-| Observed checks and omissions | [Verification](verification.md) |
-| Evaluation scope and operational limits | [Evaluation](evaluation.md) |
+| Maintainer verification gates | [Verification](verification.md) |
+| Evaluation rubric and operational limits | [Evaluation](evaluation.md) |
 
 ## Product contracts versus shared procedures
 

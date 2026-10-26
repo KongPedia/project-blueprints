@@ -21,7 +21,7 @@ The existing local-source command still works:
 
 ```bash
 uvx copier copy --trust \
-  ~/Desktop/workspace/konglabs/project-blueprints ./my-project
+  /path/to/project-blueprints ./my-project
 ```
 
 **Use a new destination.** Native Copier permits existing-directory merges; it does not enforce an existing-path
@@ -32,7 +32,7 @@ Its copy-only task runs `codex plugin add` for the selected union, without per-p
 Keep the default empty `agent_skills_repository`. Register the reviewed skills index **once per host** first:
 
 ```bash
-codex plugin marketplace add ~/Desktop/workspace/konglabs/agent-skills
+codex plugin marketplace add /path/to/agent-skills
 ```
 
 If the first copy reports `plugin ... was not found in marketplace konglabs-agent-skills`, register the source and

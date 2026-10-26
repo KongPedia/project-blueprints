@@ -1,60 +1,48 @@
-# Engineering assessment
+# Evaluation rubric and evidence boundaries
 
-**Project Blueprints: 92/100. Agent Skills: 93/100.** These are subjective assessments of the implemented local design
-and verified maintainer workflow, not production certification or a score for an existing consumer's current state.
-The ownership audit removed duplicate forms and protected legacy content. Native Copier remains the only generation
-interface; a custom safety CLI was removed at the user's request. This means `--trust` remains required for task
-execution and existing directories are not automatically rejected. Generate only into new destinations.
-See [observed verification](verification.md). Unobserved operating layers remain unverified, regardless of the score.
+Evaluate a reviewed revision, not a repository name. Keep per-task scores and consumer-specific adoption receipts in
+that task's review evidence; this shared template does not carry a permanent self-awarded score or consumer history.
+Scores are subjective assessments, not certification by platform vendors or calibrated model benchmarks.
 
-| Area | Blueprints | Skills | Observed basis and remaining cost |
-| --- | ---: | ---: | --- |
-| Architecture and ownership | 20/20 | 20/20 | Native layouts; one canonical reusable-asset owner; closed resources and preserved upstream identities |
-| DevOps and preservation | 16/20 | 17/20 | Deterministic artifacts, versioned sources and preservation regressions. Hosted delivery/authentication and downstream rollout need observed evidence |
-| AI harness | 18/20 | 18/20 | Native adapters and activation matrix; explicit installation/trust boundaries. Fresh App/Claude discovery, invocation/adherence and private-source lifecycle unverified |
-| Simplicity and UX | 19/20 | 19/20 | No form mirror, custom CLI or second questionnaire; native trust/render-only controls. No user study |
-| Verification | 19/20 | 19/20 | Full local suites, provenance/closure, real native installation and cache-byte checks. No hosted CI or model-adherence evaluation |
-| Total | **92/100** | **93/100** | Local supported scope only |
+## Reusable 100-point rubric
 
-Independent architecture/DevOps and AI-harness reviews found no remaining blocker in the supported local flow.
-The current harness assessment includes actual selected-cache byte comparisons, not just configuration inspection.
-Review roles and local test logs are evidence, not independent numerical certification; role-model capacity required
-an inherited-model reviewer fallback. Missing operating evidence remains a deduction, not an implied pass.
+Each category contributes 20 points. Record concrete evidence, remaining deductions and unknowns; never change the
+rubric or classify an unobserved layer as passed just to cross a requested numerical target.
 
-## Concrete cleanup
+| Category | Questions |
+| --- | --- |
+| Correctness/evidence | Do meaningful regressions exercise the actual boundary? Are independent expected values, failures and full checks observed? |
+| Responsibility/maintainability | Are shared procedures, templates, product policy and host state separate? Are original resources reused without mirrors/wrappers? |
+| Version/update/selectivity | Are releases/source identities, retained Copier lineage, selected bundle closure and explicit host refresh reproducible? |
+| Safety/reproducibility | Are custom files/settings/gitlinks protected, trusted execution bounded, credentials private and tests isolated? |
+| Documentation/provenance | Are generic instructions executable, conditional and source-aligned? Are immutable upstream, reviewed local and generated hashes/licenses distinguished? |
 
-| Item | Before this audit | Implemented |
-| --- | --- | --- |
-| Generic forms in fresh project output | Five copied files | None |
-| Generic form source homes | Blueprint and unshipped provider mirror | Skill-local assets only |
-| README formats | Separate folder/package forms | One optional Docs Sync guide |
-| ADR format | Blueprint form plus Matt format | Existing Matt format unchanged |
-| Stale package layout advice | `src/apps` / `src/packages` | Removed; inspect actual native layout |
-| Maintainer documentation | Eight pages | Six; source layout in README, host lifecycle in provider |
-| Customized legacy-form retirement | Actual deletion reproduced | Excluded from managed deletion; full byte-preservation regression |
+Assess each repository through six distinct lenses:
 
-## Keep the right boundaries
+- **Software engineering:** interfaces, native layouts, failure contracts, regression quality and minimal change.
+- **DevOps:** locked checks, immutable references, least-privilege delivery, actual hosted status and recovery.
+- **AI-agent engineering:** precise triggers, progressive references, relevant task selection and instruction adherence.
+- **Harness engineering:** supported packaging/configuration, authority discovery, effective enablement, lifecycle/refresh.
+- **OpenAI/Codex integration:** observed supported-client behavior; distinguish CLI/App and plugin skills from native custom agents.
+- **Claude Code integration:** native plugin adapters, instruction-loading compatibility, scoped selection and actual fresh-session behavior.
 
-- `blueprints` owns native code fragments; `template` assembles output through internal symlink mounts. These are
-  aliases, not duplicate authored implementations. Generated output contains ordinary files.
-- Provider skills own reusable forms/methods, references, hooks and generic roles. Conditional assets do not add skill
-  discovery entries or require documents for every task/folder. No measured context-token savings are claimed.
-- Product docs keep selected structure, filled contracts/decisions and actual commands. Small specs/ADR READMEs merely
-  identify their project-owned destinations. Project `.agents` keeps routing/setup, not a shared form library.
-- New projects contain no generic forms; existing customized forms are preserved until explicitly reviewed for manual
-  retirement. A plugin resource move is not permission to delete consumer content.
-- Native Copier selects profile/composition and, with template task authorization, installs selected Codex plugins from
-  the already registered host source. Registration, project/hook trust and later refresh remain separate. Advanced Git
-  source overrides are rejected before automatic adds because requested refs do not prove cached source identity.
-  No public marketplace listing, skill-copy fallback, submodule, custom CLI or per-combination repo is required.
-  Copier owns questions, rendering and its installation task; native existing-directory merging remains an explicit risk.
+## Independent evidence, not numerical theater
 
-The current real consumer contains both old single-Python files and newer Litestar/React monorepo output. It is not
-scored as a clean standalone project. Reconciliation needs a separate reviewed migration, not another copy over the
-same directory. New versioned source history does not make old unavailable prototype revisions update-ready.
+Reviewers identify failure conditions and locations before assigning scores. A code author must not approve their own
+work as an independent review. Disclose unavailable role/model fallbacks. Code/prose inspection, local software checks,
+native discovery, model invocation and hosted/production behavior are different layers.
 
-## Remaining operating gates
+Use the [verification gates](verification.md) and retain actual commands/results with their versions/revisions. No
+universal score ceiling substitutes for judgment, but absent required runtime/hosted evidence remains an explicit
+missing gate. Scope local quality separately from operating readiness; do not average away a missing platform test.
 
-Protected releases and observed hosted CI/cross-private access; fresh App/Claude
-skill/agent discovery and model adherence; optional native hook trust/invocation; original-material public licensing
-and secret/proprietary-scope review. Local passing checks do not establish any of these or physical safety.
+## Boundaries that must survive improvements
+
+- Native Copier owns questions, rendering and reviewed tasks; no extra creator CLI or copied shared Markdown library.
+- Provider skills own generic procedures/resources/roles/licenses; generated projects keep actual local contracts and authority.
+- FastAPI and Litestar share REST/API principles, then select their own native routing/DI/test boundaries.
+- Existing local adaptations/forms remain until separately reviewed retirement; project source does not move to match a template example.
+- Template revision updates and host plugin refresh are separate; host-managed releases need not imply per-project version locks.
+- Private/public publishing, original-material license selection and secret/proprietary-scope review require their own authorization.
+- Hosted CI/authentication, fresh App/Claude discovery, invocation/adherence and optional hook execution require observed evidence.
+- No passing check, hash, role prompt or score establishes deployment or physical success.
